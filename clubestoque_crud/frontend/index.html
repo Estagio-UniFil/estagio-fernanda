@@ -6,33 +6,119 @@
   <title>ClubEstoque - Categorias</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"> 
   <style>
-    /* Página geral */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0;
+      display: flex;
       font-family: Arial, sans-serif;
       background-color: #f0f4ff;
       color: #003366;
+    }
+    /* Sidebar */
+    .sidebar {
+      width: 220px;
+      background-color: #003366;
+      color: white;
+      height: 100vh;
+      position: fixed;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      transition: width 0.3s;
+    }
+    .sidebar.minimized { width: 60px; }
+    .sidebar .toggle {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      padding: 10px;
+      text-align: left;
+      cursor: pointer;
+    }
+    .sidebar ul { list-style: none; flex: 1; }
+    .sidebar ul li {
+      padding: 15px 20px;
+      cursor: pointer;
+      transition: background 0.3s;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    .sidebar ul li:hover { background-color: #0055a5; }
+    .sidebar ul li i { margin-right: 10px; }
+    .sidebar.minimized ul li .label { display: none; }
+
+    /* Main content */
+    .main-content {
+      margin-left: 220px;
       padding: 20px;
+      width: calc(100% - 220px);
+      transition: margin-left 0.3s, width 0.3s;
     }
-
+    .sidebar.minimized + .main-content {
+      margin-left: 60px;
+      width: calc(100% - 60px);
+    }
     header {
-      text-align: center;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
       margin-bottom: 30px;
+      position: relative;
     }
-
+    .header-left,
+    .header-center,
+    .header-right {
+      display: flex;
+      align-items: flex-start;
+    }
+    .header-left {
+      flex: 1;
+    }
+    .header-center {
+      flex: 2;
+      flex-direction: column;
+      align-items: center;
+    }
+    .header-right {
+      flex: 1;
+      justify-content: flex-end;
+      position: relative;
+    }
     header img {
       width: 200px;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
 
-    h1 {
+    .user-menu {
+      position: relative;
+    }
+    .user-icon {
+      font-size: 24px;
+      cursor: pointer;
+      margin-top: 0;
+      display: block;
+    }
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 28px; /* um pouco abaixo do ícone */
+      background-color: white;
+      color: #003366;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      border-radius: 5px;
+      overflow: hidden;
+      min-width: 120px;
+      z-index: 10;
+    }
+    .user-dropdown a {
+      display: block;
+      padding: 10px 20px;
+      text-decoration: none;
       color: #003366;
     }
+    .user-dropdown a:hover { background-color: #f0f0f0; }
 
-    /* Formulário de cadastro */
+    /* Form and Category list */
     form {
       background-color: #ffffff;
       padding: 20px;
@@ -41,9 +127,8 @@
       text-align: center;
       max-width: 400px;
       width: 100%;
-      margin-bottom: 20px;
+      margin-bottom: 0;
     }
-
     input[type="text"] {
       padding: 10px;
       width: 80%;
@@ -51,7 +136,6 @@
       border-radius: 5px;
       margin-bottom: 10px;
     }
-
     button {
       padding: 8px 14px;
       border: none;
@@ -62,12 +146,7 @@
       transition: background-color 0.3s ease;
       font-size: 14px;
     }
-
-    button:hover {
-      background-color: #0055a5;
-    }
-
-    /* Lista decategorias */
+    button:hover { background-color: #0055a5; }
     .categoria {
       background-color: #e6f0ff;
       border: 1px solid #003366;
@@ -78,7 +157,6 @@
       justify-content: space-between;
       align-items: center;
     }
-
     .categoria input[type="text"] {
       border: none;
       background-color: transparent;
@@ -86,7 +164,6 @@
       font-size: 16px;
       width: 200px;
     }
-
     .categoria input[type="text"]:focus {
       background-color: #ffffff;
       border: 1px solid #003366;
@@ -94,214 +171,163 @@
       padding: 5px;
       border-radius: 5px;
     }
+    .categoria button { background-color: #ffcc00; color: #003366; margin-left: 5px; }
+    .categoria button:hover { background-color: #ffdb4d; }
 
-    .categoria button {
-      background-color: #ffcc00;
-      color: #003366;
-      margin-left: 5px;
-    }
-
-    .categoria button:hover {
-      background-color: #ffdb4d;
-    }
-
-    /* Mensagens Toast */
-    .toast-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 9999;
-    }
-
-    .toast {
-      background-color: #003366;
-      color: white;
-      padding: 12px 20px;
-      border-radius: 8px;
-      margin-top: 10px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      opacity: 0;
-      transform: translateY(20px);
-      animation: slideIn 0.4s forwards, fadeOut 0.5s 2.5s forwards;
-    }
-
-    .toast.sucesso {
-      background-color: #28a745;
-    }
-
-    .toast.erro {
-      background-color: #dc3545;
-    }
-
-    @keyframes slideIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-    }
+    /* Toast */
+    .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; }
+    .toast { background-color: #003366; color: white; padding: 12px 20px; border-radius: 8px; margin-top: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); opacity: 0; transform: translateY(20px); animation: slideIn 0.4s forwards, fadeOut 0.5s 2.5s forwards; }
+    .toast.sucesso { background-color: #28a745; }
+    .toast.erro    { background-color: #dc3545; }
+    @keyframes slideIn { to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeOut{ to { opacity:0; transform:translateY(20px);} }
   </style>
 </head>
 <body>
-  <header>
-    <img src="logo sem fundo.png" alt="Logo AABB Londrina-PR">
-    <h1>ClubEstoque</h1>
-  </header>
+  <div class="sidebar" id="sidebar">
+    <button class="toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+    <ul>
+      <li><i class="fas fa-arrow-down"></i><span class="label">Entradas</span></li>
+      <li><i class="fas fa-arrow-up"></i><span class="label">Saídas</span></li>
+      <li><i class="fas fa-box"></i><span class="label">Produtos</span></li>
+      <li><i class="fas fa-tags"></i><span class="label">Categorias</span></li>
+      <li><i class="fas fa-truck"></i><span class="label">Fornecedores</span></li>
+      <li><i class="fas fa-users"></i><span class="label">Usuários</span></li>
+      <li><i class="fas fa-chart-line"></i><span class="label">Relatórios</span></li>
+    </ul>
+  </div>
 
-  <!-- Formulário de nova categoria -->
-  <form id="form">
-    <input type="text" id="nome" placeholder="Digite o nome de uma nova categoria" required />
-    <button type="submit">Salvar</button>
-  </form>
+  <div class="main-content">
+    <header>
+      <div class="header-left"></div>
+      <div class="header-center">
+        <img src="logo sem fundo.png" alt="Logo AABB Londrina-PR">
+        <form id="form">
+          <input type="text" id="nome" placeholder="Digite o nome de uma nova categoria" required />
+          <button type="submit">Salvar</button>
+        </form>
+      </div>
+      <div class="header-right">
+        <div class="user-menu">
+          <i class="fas fa-user user-icon" onclick="toggleUserDropdown()"></i>
+          <div class="user-dropdown" id="userDropdown">
+            <a href="#">Meu Perfil</a>
+            <a href="#">Sair</a>
+          </div>
+        </div>
+      </div>
+    </header>
 
-  <div id="categorias"></div>
-  <div class="toast-container" id="toastContainer"></div>
+    <div id="categorias"></div>
+    <div class="toast-container" id="toastContainer"></div>
 
-  <script>
-    // selecionar elementos da página
-    const form = document.getElementById('form');
-    const nomeInput = document.getElementById('nome');
-    const categoriasDiv = document.getElementById('categorias');
-    const toastContainer = document.getElementById('toastContainer');
+    <script>
+      const form = document.getElementById('form');
+      const nomeInput = document.getElementById('nome');
+      const categoriasDiv = document.getElementById('categorias');
+      const toastContainer = document.getElementById('toastContainer');
+      const API_URL = 'http://localhost:3000/api/categorias';
 
-    // API back-end
-    const API_URL = 'http://localhost:3000/api/categorias';
+      function mostrarToast(mensagem, tipo = 'sucesso') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${tipo}`;
+        toast.textContent = mensagem;
+        toastContainer.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+      }
 
-    // mostrar mensagens toast
-    function mostrarToast(mensagem, tipo = 'sucesso') {
-      const toast = document.createElement('div');
-      toast.className = `toast ${tipo}`;
-      toast.textContent = mensagem;
-      toastContainer.appendChild(toast);
+      async function carregarCategorias() {
+        try {
+          const response = await fetch(API_URL);
+          const categorias = await response.json();
+          categoriasDiv.innerHTML = '';
+          categorias.forEach(categoria => {
+            const div = document.createElement('div');
+            div.className = 'categoria';
 
-      setTimeout(() => {
-        toast.remove();
-      }, 3000);
-    }
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = categoria.nome;
+            input.disabled = true;
 
-    // carregar todas as categorias existentes
-    async function carregarCategorias() {
-      try {
-        const response = await fetch(API_URL);
-        const categorias = await response.json();
+            const btnEditar = document.createElement('button');
+            btnEditar.innerHTML = '<i class="fas fa-pen"></i>';
+            btnEditar.title = "Editar";
+            let editando = false;
 
-        categoriasDiv.innerHTML = '';
-        categorias.forEach(categoria => {
-          // linha de categoria
-          const div = document.createElement('div');
-          div.className = 'categoria';
-
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.value = categoria.nome;
-          input.disabled = true;
-
-          const btnEditar = document.createElement('button');
-          btnEditar.innerHTML = '<i class="fas fa-pen"></i>';
-          btnEditar.title = "Editar";
-          let editando = false;
-
-          // editar/salvar categoria
-          btnEditar.onclick = async () => {
-            if (!editando) {
-              input.disabled = false;
-              input.focus();
-              editando = true;
-              btnEditar.innerHTML = '<i class="fas fa-save"></i>';
-              btnEditar.title = "Salvar";
-            } else {
-              if (input.value.trim() === '') {
-                mostrarToast('O nome não pode estar vazio!', 'erro');
-                return;
+            btnEditar.onclick = async () => {
+              if (!editando) {
+                input.disabled = false;
+                input.focus();
+                editando = true;
+                btnEditar.innerHTML = '<i class="fas fa-save"></i>';
+                btnEditar.title = "Salvar";
+              } else {
+                const novoNome = input.value.trim();
+                if (novoNome === '') { mostrarToast('Preencha este campo.', 'erro'); return; }
+                if (/[^a-zA-Z\u00C0-\u00FF\s]/.test(novoNome)) { mostrarToast('O nome da categoria não pode conter números ou caracteres especiais.', 'erro'); return; }
+                try {
+                  const response = await fetch(`${API_URL}/${categoria.id}`, { method:'PUT', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify({ nome: novoNome }) });
+                  const data = await response.json();
+                  if (!response.ok && data.erro === 'Nome da categoria já existe') {
+                    mostrarToast('Categoria já existente!', 'erro'); return;
+                  }
+                  if (!response.ok) { mostrarToast(data.erro || 'Erro ao atualizar categoria!', 'erro'); return; }
+                  mostrarToast('Categoria atualizada com sucesso!');
+                  carregarCategorias();
+                } catch { mostrarToast('Erro ao atualizar categoria!', 'erro'); }
               }
+            };
+
+            const btnExcluir = document.createElement('button');
+            btnExcluir.innerHTML = '<i class="fas fa-trash"></i>';
+            btnExcluir.title = "Excluir";
+            btnExcluir.onclick = async () => {
               try {
-                await fetch(`${API_URL}/${categoria.id}`, {
-                  method: 'PUT',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ nome: input.value }),
-                });
-                mostrarToast('Categoria atualizada com sucesso!');
-                carregarCategorias();
-              } catch (err) {
-                mostrarToast('Erro ao atualizar categoria!', 'erro');
-              }
-            }
-          };
+                await fetch(`${API_URL}/${categoria.id}`, { method:'DELETE' });
+                mostrarToast('Categoria excluída com sucesso!'); carregarCategorias();
+              } catch { mostrarToast('Erro ao excluir categoria!', 'erro'); }
+            };
 
-          // exclusão da categoria
-          const btnExcluir = document.createElement('button');
-          btnExcluir.innerHTML = '<i class="fas fa-trash"></i>';
-          btnExcluir.title = "Excluir";
-          btnExcluir.onclick = async () => {
-            try {
-              await fetch(`${API_URL}/${categoria.id}`, {
-                method: 'DELETE',
-              });
-              mostrarToast('Categoria excluída com sucesso!');
-              carregarCategorias();
-            } catch (err) {
-              mostrarToast('Erro ao excluir categoria!', 'erro');
-            }
-          };
-
-          const botoes = document.createElement('div');
-          botoes.appendChild(btnEditar);
-          botoes.appendChild(btnExcluir);
-
-          div.appendChild(input);
-          div.appendChild(botoes);
-          categoriasDiv.appendChild(div);
-        });
-      } catch (err) {
-        mostrarToast('Erro ao carregar categorias!', 'erro');
-      }
-    }
-
-    // erro: vazio
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const nome = nomeInput.value.trim();
-
-      if (nome === '') {
-        mostrarToast('Por favor, digite um nome para a categoria.', 'erro');
-        return;
+            const botoes = document.createElement('div'); botoes.append(btnEditar, btnExcluir);
+            div.append(input, botoes);
+            categoriasDiv.append(div);
+          });
+        } catch { mostrarToast('Erro ao carregar categorias!', 'erro'); }
       }
 
-      try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ nome }),
-        });
+      form.addEventListener('submit', async e => {
+        e.preventDefault();
+        const nome = nomeInput.value.trim();
+        if (nome === '') { mostrarToast('Preencha este campo.', 'erro'); return; }
+        if (/[^a-zA-Z\u00C0-\u00FF\s]/.test(nome)) { mostrarToast('O nome da categoria não pode conter números ou caracteres especiais.', 'erro'); return; }
+        try {
+          const response = await fetch(API_URL, { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify({ nome }) });
+          const data = await response.json();
+          if (!response.ok && data.erro === 'Nome da categoria já existe') { mostrarToast('Categoria já existente!', 'erro'); return; }
+          if (!response.ok) { mostrarToast(data.erro || 'Erro ao salvar categoria!', 'erro'); return; }
+          nomeInput.value = '';
+          mostrarToast('Categoria cadastrada com sucesso!'); carregarCategorias();
+        } catch { mostrarToast('Erro ao salvar categoria!', 'erro'); }
+      });
 
-        const data = await response.json();
+      carregarCategorias();
 
-        if (!response.ok) {
-          // erro: nome duplicado
-          if (data.erro === "Nome da categoria já existe") {
-            mostrarToast('Categoria já existente!', 'erro');
-          } else {
-            mostrarToast('Erro ao salvar categoria!', 'erro');
-          }
-          return;
-        }
-
-        nomeInput.value = '';
-        mostrarToast('Categoria cadastrada com sucesso!');
-        carregarCategorias();
-      } catch (err) {
-        mostrarToast('Erro ao salvar categoria!', 'erro');
+      function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('minimized');
       }
-    });
 
-    // todas categorias assim que a página abre
-    carregarCategorias();
-  </script>
+      function toggleUserDropdown() {
+        const d = document.getElementById('userDropdown');
+        d.style.display = d.style.display === 'block' ? 'none' : 'block';
+      }
+
+      document.addEventListener('click', e => {
+        const u = document.querySelector('.user-icon');
+        const d = document.getElementById('userDropdown');
+        if (!u.contains(e.target) && !d.contains(e.target)) d.style.display = 'none';
+      });
+    </script>
+  </div>
 </body>
 </html>
