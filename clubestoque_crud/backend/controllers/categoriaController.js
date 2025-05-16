@@ -48,7 +48,7 @@ exports.updateCategoria = (req, res) => {
   if (!nome) return res.status(400).json({ erro: "Nome é obrigatório" });
 
   // Bloqueia números e caracteres especiais
-  if (/[^a-zA-Z\u00C0-\u00FF\s]/.test(nome)) {
+  if (/[^a-zA-Z\u00C0-\u00FF\s]/.test(nome)) {s
     return res.status(400).json({ erro: "O nome da categoria não pode conter números ou caracteres especiais." });
   }
 
