@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import CategoriaForm from './components/CategoriaForm';
 import CategoriaLista from './components/CategoriaLista';
 import './style.css';
@@ -9,19 +9,25 @@ const logo = process.env.PUBLIC_URL + '/logo sem fundo.png';
 
 function App() {
   const [categorias, setCategorias] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const carregarCategorias = async () => {
+  // Usando useCallback para memoizar a função e evitar recriações desnecessárias
+  const carregarCategorias = useCallback(async () => {
+    setLoading(true);
     try {
       const res = await getCategorias();
       setCategorias(res);
-    } catch {
+    } catch (err) {
+      console.error('Erro ao carregar categorias:', err);
       mostrarToast('Erro ao carregar categorias!', 'erro');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     carregarCategorias();
-  }, []);
+  }, [carregarCategorias]);
 
   const toggleSidebar = () => {
     document.getElementById('sidebar').classList.toggle('minimized');
@@ -68,7 +74,14 @@ function App() {
           </div>
         </header>
 
-        <CategoriaLista categorias={categorias} onRefresh={carregarCategorias} />
+        {loading ? (
+          <div className="loading-container">
+            <i className="fas fa-spinner fa-spin"></i> Carregando categorias...
+          </div>
+        ) : (
+          <CategoriaLista categorias={categorias} onRefresh={carregarCategorias} />
+        )}
+        
         <div className="toast-container" id="toastContainer"></div>
       </div>
     </>

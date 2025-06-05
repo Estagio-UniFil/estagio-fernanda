@@ -4,11 +4,11 @@ import { mostrarToast } from '../utils/toast';
 
 function CategoriaForm({ onRefresh }) {
   const [nome, setNome] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [carregando, setCarregando] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isSubmitting) return;
+    if (carregando) return;
     
     const valor = nome.trim();
     if (!valor) {
@@ -20,7 +20,7 @@ function CategoriaForm({ onRefresh }) {
       return;
     }
 
-    setIsSubmitting(true);
+    setCarregando(true);
     try {
       const res = await criarCategoria(valor);
       if (res.erro) {
@@ -29,15 +29,12 @@ function CategoriaForm({ onRefresh }) {
       }
       setNome('');
       mostrarToast('Categoria cadastrada com sucesso!');
-      // Força a atualização da lista
-      if (onRefresh) {
-        await onRefresh();
-      }
+      if (onRefresh) await onRefresh();
     } catch (err) {
-      console.error('Erro ao criar categoria:', err);
       mostrarToast('Erro ao salvar!', 'erro');
+      console.error(err);
     } finally {
-      setIsSubmitting(false);
+      setCarregando(false);
     }
   };
 
@@ -49,10 +46,10 @@ function CategoriaForm({ onRefresh }) {
         onChange={e => setNome(e.target.value)} 
         placeholder="Digite o nome de uma nova categoria" 
         required 
-        disabled={isSubmitting}
+        disabled={carregando}
       />
-      <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Salvando...' : 'Salvar'}
+      <button type="submit" disabled={carregando}>
+        {carregando ? 'Salvando...' : 'Salvar'}
       </button>
     </form>
   );
