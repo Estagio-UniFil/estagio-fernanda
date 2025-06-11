@@ -53,7 +53,7 @@ function CategoriaLista({ onRefresh }) {
       setEditando(null);
       if (onRefresh) await onRefresh();
     } catch {
-      mostrarToast('Erro ao atualizar!', 'erro');
+      mostrarToast('Categoria já existente!', 'erro');
     } finally {
       setCarregando(false);
     }

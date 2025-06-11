@@ -9,29 +9,33 @@ function CategoriaForm({ onRefresh }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (carregando) return;
-    
+
     const valor = nome.trim();
     if (!valor) {
       mostrarToast('Preencha este campo.', 'erro');
       return;
     }
+
     if (/[^a-zA-ZÀ-ÿ\s]/.test(valor)) {
       mostrarToast('O nome da categoria não pode conter números ou caracteres especiais.', 'erro');
       return;
     }
 
     setCarregando(true);
+
     try {
       const res = await criarCategoria(valor);
+
       if (res.erro) {
         mostrarToast(res.erro, 'erro');
-        return;
+
+      } else {
+        setNome('');
+        mostrarToast('Categoria cadastrada com sucesso!');
+        if (onRefresh) await onRefresh();
       }
-      setNome('');
-      mostrarToast('Categoria cadastrada com sucesso!');
-      if (onRefresh) await onRefresh();
     } catch (err) {
-      mostrarToast('Erro ao salvar!', 'erro');
+      mostrarToast('Categoria já existente!', 'erro');
       console.error(err);
     } finally {
       setCarregando(false);
