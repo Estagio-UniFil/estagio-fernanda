@@ -28,14 +28,13 @@ function CategoriaForm({ onRefresh }) {
 
       if (res.erro) {
         mostrarToast(res.erro, 'erro');
-
       } else {
         setNome('');
         mostrarToast('Categoria cadastrada com sucesso!');
         if (onRefresh) await onRefresh();
       }
     } catch (err) {
-      mostrarToast('Categoria já existente!', 'erro');
+      mostrarToast(err.message || 'Erro ao salvar!', 'erro');
       console.error(err);
     } finally {
       setCarregando(false);
@@ -53,7 +52,7 @@ function CategoriaForm({ onRefresh }) {
         disabled={carregando}
       />
       <button type="submit" disabled={carregando}>
-        {carregando ? 'Salvando...' : 'Salvar'}
+        Salvar
       </button>
     </form>
   );
